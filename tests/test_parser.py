@@ -1,66 +1,122 @@
-"""
-Parser test cases for TyC compiler
-TODO: Implement 100 test cases for parser
-"""
-
-import pytest
+import unittest
 from tests.utils import Parser
 
+class ParserSuite(unittest.TestCase):
 
-# ========== Simple Test Cases (10 types) ==========
-def test_empty_program():
-    """1. Empty program"""
-    assert Parser("").parse() == "success"
+    def check(self, inp, expected, test_id):
+        parser = Parser(inp)
+        actual = parser.parse()
+        if expected == "success":
+            self.assertEqual(actual, "success", f"Test {test_id} Failed. Expect 'success' but got '{actual}'")
+        else:
+            self.assertTrue("Error" in actual, f"Test {test_id} Failed. Expect Error but got '{actual}'")
 
+    # Group 1: Program Structure
+    def test_201(self): self.check("void main() {}", "success", 201)
+    def test_202(self): self.check("int main() {}", "success", 202)
+    def test_203(self): self.check("main() {}", "success", 203)
+    def test_204(self): self.check("struct A { int x; };", "success", 204)
+    def test_205(self): self.check("struct A { int x; float y; string z; };", "success", 205)
+    def test_206(self): self.check("struct A {};", "success", 206)
+    def test_207(self): self.check("struct A { B b; };", "success", 207)
+    def test_208(self): self.check("void f(int x) {}", "success", 208)
+    def test_209(self): self.check("void f(int x, float y) {}", "success", 209)
+    def test_210(self): self.check("f() {}", "success", 210)
+    def test_211(self): self.check("struct P { int x; }; void main() {}", "success", 211)
+    def test_212(self): self.check("void f() {} void g() {}", "success", 212)
+    def test_213(self): self.check("int add(int a, int b) { return a+b; }", "success", 213)
+    def test_214(self): self.check("struct S { int a; }; S make() { return {1}; }", "success", 214)
+    def test_215(self): self.check("main(int args) {}", "success", 215)
 
-def test_program_with_only_main():
-    """2. Program with only main function"""
-    assert Parser("void main() {}").parse() == "success"
+    # Group 2: Var Declarations
+    def test_216(self): self.check("void f() { int x; }", "success", 216)
+    def test_217(self): self.check("void f() { float y; }", "success", 217)
+    def test_218(self): self.check("void f() { string s; }", "success", 218)
+    def test_219(self): self.check("void f() { Point p; }", "success", 219)
+    def test_220(self): self.check("void f() { auto x = 1; }", "success", 220)
+    def test_221(self): self.check("void f() { int x = 10; }", "success", 221)
+    def test_222(self): self.check("void f() { float f = 1.2; }", "success", 222)
+    def test_223(self): self.check("void f() { string s = \"hi\"; }", "success", 223)
+    def test_224(self): self.check("void f() { auto y = x + 1; }", "success", 224)
+    def test_225(self): self.check("void f() { int a; int b; }", "success", 225)
+    def test_226(self): self.check("void f() { auto i; }", "success", 226)
+    def test_227(self): self.check("void f() { Point p = {1, 2}; }", "success", 227)
+    def test_228(self): self.check("void f() { auto p = {1}; }", "success", 228)
+    def test_229(self): self.check("void f() { int x = a * b; }", "success", 229)
+    def test_230(self): self.check("void f() { float z = -1.0; }", "success", 230)
 
+    # Group 3: Control Flow
+    def test_231(self): self.check("void f() { if (x) return; }", "success", 231)
+    def test_232(self): self.check("void f() { if (x > 0) x=1; else x=2; }", "success", 232)
+    def test_233(self): self.check("void f() { if (a) { if (b) c; else d; } }", "success", 233)
+    def test_234(self): self.check("void f() { if (a) if (b) c; }", "success", 234)
+    def test_235(self): self.check("void f() { while (true) break; }", "success", 235)
+    def test_236(self): self.check("void f() { while (x < 10) { x++; } }", "success", 236)
+    def test_237(self): self.check("void f() { for(;;) break; }", "success", 237)
+    def test_238(self): self.check("void f() { for(i=0; i<10; i++) x; }", "success", 238)
+    def test_239(self): self.check("void f() { for(int i=0; i<10; i++) {} }", "success", 239)
+    def test_240(self): self.check("void f() { for(auto i=0; i<10; i++) {} }", "success", 240)
+    def test_241(self): self.check("void f() { for(i=0; ; ) {} }", "success", 241)
+    def test_242(self): self.check("void f() { for(; i<10; ) {} }", "success", 242)
+    def test_243(self): self.check("void f() { for(; ; i++) {} }", "success", 243)
+    def test_244(self): self.check("void f() { switch(x) { case 1: break; } }", "success", 244)
+    def test_245(self): self.check("void f() { switch(x) { default: return; } }", "success", 245)
+    def test_246(self): self.check("void f() { switch(x) { case 1: x; case 2: y; default: z; } }", "success", 246)
+    def test_247(self): self.check("void f() { switch(x) {} }", "success", 247)
+    def test_248(self): self.check("void f() { switch(x) { case 1+2: break; } }", "success", 248)
+    def test_249(self): self.check("void f() { return; }", "success", 249)
+    def test_250(self): self.check("void f() { return 1+2; }", "success", 250)
+    def test_251(self): self.check("void f() { break; }", "success", 251)
+    def test_252(self): self.check("void f() { continue; }", "success", 252)
+    def test_253(self): self.check("void f() { { int x; } }", "success", 253)
+    def test_254(self): self.check("void f() { ; }", "success", 254)
+    def test_255(self): self.check("void f() { 1 + 2; }", "success", 255)
 
-def test_struct_simple():
-    """3. Struct declaration"""
-    source = "struct Point { int x; int y; };"
-    assert Parser(source).parse() == "success"
+    # Group 4: Expressions
+    def test_256(self): self.check("void f() { a = b = c; }", "success", 256)
+    def test_257(self): self.check("void f() { a || b && c; }", "success", 257)
+    def test_258(self): self.check("void f() { a == b != c; }", "success", 258)
+    def test_259(self): self.check("void f() { a < b > c; }", "success", 259)
+    def test_260(self): self.check("void f() { a + b - c; }", "success", 260)
+    def test_261(self): self.check("void f() { a * b / c % d; }", "success", 261)
+    def test_262(self): self.check("void f() { !-a; }", "success", 262)
+    def test_263(self): self.check("void f() { a.b.c; }", "success", 263)
+    def test_264(self): self.check("void f() { f(1, 2); }", "success", 264)
+    def test_265(self): self.check("void f() { a[1]; }", "Error", 265)
+    def test_266(self): self.check("void f() { (a + b) * c; }", "success", 266)
+    def test_267(self): self.check("void f() { foo(a, b+c); }", "success", 267)
+    def test_268(self): self.check("void f() { a.x = 1; }", "success", 268)
+    def test_269(self): self.check("void f() { {1, 2, 3}; }", "success", 269)
+    def test_270(self): self.check("void f() { x++; y--; }", "success", 270)
+    def test_271(self): self.check("void f() { ++x; --y; }", "success", 271)
+    def test_272(self): self.check("void f() { a + b * c; }", "success", 272)
+    def test_273(self): self.check("void f() { a = {1, 2}; }", "success", 273)
+    def test_274(self): self.check("void f() { f({1, 2}); }", "success", 274)
+    def test_275(self): self.check("void f() { a.b().c; }", "success", 275)
+    def test_276(self): self.check("void f() { -1 + +2; }", "success", 276)
+    def test_277(self): self.check("void f() { a = b = 0; }", "success", 277)
+    def test_278(self): self.check("void f() { true; }", "success", 278)
+    def test_279(self): self.check("void f() { 1.5e-2; }", "success", 279)
+    def test_280(self): self.check("void f() { \"string\"; }", "success", 280)
 
-
-def test_function_no_params():
-    """4. Function with no parameters"""
-    source = "void greet() { printString(\"Hello\"); }"
-    assert Parser(source).parse() == "success"
-
-
-def test_var_decl_auto_with_init():
-    """5. Variable declaration"""
-    source = "void main() { auto x = 5; }"
-    assert Parser(source).parse() == "success"
-
-
-def test_if_simple():
-    """6. If statement"""
-    source = "void main() { if (1) printInt(1); }"
-    assert Parser(source).parse() == "success"
-
-
-def test_while_simple():
-    """7. While statement"""
-    source = "void main() { while (1) printInt(1); }"
-    assert Parser(source).parse() == "success"
-
-
-def test_for_simple():
-    """8. For statement"""
-    source = "void main() { for (auto i = 0; i < 10; ++i) printInt(i); }"
-    assert Parser(source).parse() == "success"
-
-
-def test_switch_simple():
-    """9. Switch statement"""
-    source = "void main() { switch (1) { case 1: printInt(1); break; } }"
-    assert Parser(source).parse() == "success"
-
-
-def test_assignment_simple():
-    """10. Assignment statement"""
-    source = "void main() { int x; x = 5; }"
-    assert Parser(source).parse() == "success"
+    # Group 5: Errors
+    def test_281(self): self.check("", "success", 281)
+    def test_282(self): self.check("void main()", "Error", 282)
+    def test_283(self): self.check("main() {", "Error", 283)
+    def test_284(self): self.check("struct A { int x }", "Error", 284)
+    def test_285(self): self.check("void f(auto x) {}", "Error", 285)
+    def test_286(self): self.check("void f() { int x = ; }", "Error", 286)
+    def test_287(self): self.check("void f() { if x return; }", "Error", 287)
+    def test_288(self): self.check("void f() { while (x) ; }", "success", 288)
+    def test_289(self): self.check("void f() { while )x( ; }", "Error", 289)
+    def test_290(self): self.check("void f() { for(;;) }", "Error", 290)
+    def test_291(self): self.check("void f() { switch(x) case 1: break; }", "Error", 291)
+    def test_292(self): self.check("void f() { break }", "Error", 292)
+    def test_293(self): self.check("struct { int x; };", "Error", 293)
+    def test_294(self): self.check("void f() { 1 + ; }", "Error", 294)
+    def test_295(self): self.check("void f() { .x; }", "Error", 295)
+    def test_296(self): self.check("void f() { return 1 2; }", "Error", 296)
+    def test_297(self): self.check("void f() { int x = 1 2; }", "Error", 297)
+    def test_298(self): self.check("void f() { else return; }", "Error", 298)
+    def test_299(self): self.check("void f() { case 1: break; }", "Error", 299)
+    def test_300(self): self.check("void f() { default: break; }", "Error", 300)
