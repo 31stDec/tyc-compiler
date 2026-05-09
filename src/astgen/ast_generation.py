@@ -129,8 +129,6 @@ class ASTGeneration(TyCVisitor):
             return self.visit(ctx.varDeclStmt())
         if ctx.exprStmt():
             expr = self.visit(ctx.exprStmt().expr())
-            if isinstance(expr, AssignExpr):
-                return AssignStmt(expr)
             return ExprStmt(expr)
 
     def visitSwitchStmt(self, ctx: TyCParser.SwitchStmtContext):
@@ -183,8 +181,6 @@ class ASTGeneration(TyCVisitor):
 
     def visitExprStmt(self, ctx: TyCParser.ExprStmtContext):
         expr = self.visit(ctx.expr())
-        if isinstance(expr, AssignExpr):
-            return AssignStmt(expr)
         return ExprStmt(expr)
 
     # ==========================================
